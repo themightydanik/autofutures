@@ -570,15 +570,250 @@ const App = () => {
                 </ResponsiveContainer>
               </div>
 
-{/* Active Trades */}
-<div className="bg-gray-800/50 backdrop-blur-xl p-6 rounded-xl border border-gray-700">
-  <h3 className="text-lg font-semibold text-white mb-4">Активные сделки</h3>
-  <div className="space-y-3">
-    {activeTrades.length > 0 ? (
-      activeTrades.map(trade => (
-        <div key={trade.id} className="bg-gray-700/30 p-4 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center space-x-2">
-              <BarChart3 className="w-4 h-4 text-blue-400" />
-              <span className="text-white font-semibold">{trade.coin}/USDT</span>
-              <span className="text-xs text-gray-400">{trade.type}</span>
+              {/* Active Trades */}
+              <div className="bg-gray-800/50 backdrop-blur-xl p-6 rounded-xl border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-4">Активные сделки</h3>
+                <div className="space-y-3">
+                  {activeTrades.length > 0 ? activeTrades.map(trade => (
+                    <div key={trade.id} className="bg-gray-700/30 p-4 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <BarChart3 className="w-4 h-4 text-blue-400" />
+                          <span className="text-white font-semibold">{trade.coin}/USDT</span>
+                          <span className="text-xs text-gray-400">{trade.type}</span>
+                        </div>
+                        <div className={`text-sm font-bold ${trade.pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {trade.pnl >= 0 ? '+' : ''}${trade.pnl.toFixed(2)}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <div className="text-gray-400 text-xs">Вход</div>
+                          <div className="text-white">${trade.entry}</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-400 text-xs">Текущая</div>
+                          <div className="text-white">${trade.current}</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-400 text-xs">PnL</div>
+                          <div className={`font-semibold ${trade.pnlPercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {trade.pnlPercent >= 0 ? '+' : ''}{trade.pnlPercent}%
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="text-center text-gray-400 py-8">
+                      Нет активных сделок
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Controls and Logs */}
+            <div className="space-y-6">
+              {/* Trading Controls */}
+              <div className="bg-gray-800/50 backdrop-blur-xl p-6 rounded-xl border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-4">Управление</h3>
+                
+                <button
+                  onClick={toggleTrading}
+                  className={`w-full py-4 rounded-xl font-semibold transition transform hover:scale-105 flex items-center justify-center space-x-2 mb-4 ${
+                    isTrading
+                      ? 'bg-red-600 hover:bg-red-700 text-white'
+                      : 'bg-green-600 hover:bg-green-700 text-white'
+                  }`}
+                >
+                  {isTrading ? (
+                    <>
+                      <Square className="w-5 h-5" />
+                      <span>Остановить</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-5 h-5" />
+                      <span>Запустить</span>
+                    </>
+                  )}
+                </button>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Направление</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => setTradeParams({ ...tradeParams, side: 'LONG' })}
+                        className={`py-2 rounded-lg transition text-sm font-semibold ${
+                          tradeParams.side === 'LONG'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        }`}
+                      >
+                        LONG
+                      </button>
+                      <button
+                        onClick={() => setTradeParams({ ...tradeParams, side: 'SHORT' })}
+                        className={`py-2 rounded-lg transition text-sm font-semibold ${
+                          tradeParams.side === 'SHORT'
+                            ? 'bg-red-600 text-white'
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        }`}
+                      >
+                        SHORT
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Размер ордера ($)</label>
+                    <input
+                      type="number"
+                      value={tradeParams.orderSize}
+                      onChange={(e) => setTradeParams({ ...tradeParams, orderSize: parseFloat(e.target.value) })}
+                      className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Stop Loss (%)</label>
+                    <input
+                      type="number"
+                      value={tradeParams.stopLoss}
+                      onChange={(e) => setTradeParams({ ...tradeParams, stopLoss: parseFloat(e.target.value) })}
+                      className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Take Profit (%)</label>
+                    <input
+                      type="number"
+                      value={tradeParams.takeProfit}
+                      onChange={(e) => setTradeParams({ ...tradeParams, takeProfit: parseFloat(e.target.value) })}
+                      className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Частота сделок</label>
+                    <select
+                      value={tradeParams.frequency}
+                      onChange={(e) => setTradeParams({ ...tradeParams, frequency: e.target.value })}
+                      className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 text-sm"
+                    >
+                      <option value="low">Низкая</option>
+                      <option value="medium">Средняя</option>
+                      <option value="high">Высокая</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Balances */}
+              <div className="bg-gray-800/50 backdrop-blur-xl p-6 rounded-xl border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-4">Балансы</h3>
+                <div className="space-y-3">
+                  {userData.exchanges.map(exchangeId => {
+                    const exchange = exchanges.find(e => e.id === exchangeId);
+                    return (
+                      <div key={exchangeId} className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                        <span className="text-white text-sm font-medium">{exchange.name}</span>
+                        <span className="text-green-400 font-semibold text-sm">${balances[exchangeId]?.toFixed(2)}</span>
+                      </div>
+                    );
+                  })}
+                  <div className="pt-3 border-t border-gray-600">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300 text-sm font-medium">Всего</span>
+                      <span className="text-white font-bold">
+                        ${Object.values(balances).reduce((a, b) => a + b, 0).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bot Activity Log */}
+          <div className="bg-gray-800/50 backdrop-blur-xl p-6 rounded-xl border border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Zap className="w-5 h-5 text-yellow-400" />
+                <h3 className="text-lg font-semibold text-white">Активность бота</h3>
+              </div>
+              {isTrading && (
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-green-400 text-sm font-medium">В реальном времени</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="space-y-2 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+              {botLogs.map((log) => (
+                <div
+                  key={log.id}
+                  className={`p-4 rounded-lg border transition-all ${
+                    log.status === 'active'
+                      ? 'bg-blue-500/10 border-blue-500/30'
+                      : 'bg-gray-700/30 border-gray-600/30'
+                  }`}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className="mt-0.5">{getLogIcon(log.type)}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-gray-400 font-mono">{log.time}</span>
+                        {log.status === 'active' && (
+                          <div className="flex items-center space-x-1">
+                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></div>
+                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-white text-sm">{log.message}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <style>{`
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(55, 65, 81, 0.3);
+            border-radius: 3px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 3px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.7);
+          }
+        `}</style>
+      </div>
+    );
+  };
+
+  // Main render logic
+  if (!isAuthenticated) {
+    return <LoginScreen />;
+  }
+
+  if (showSettings) {
+    return <SettingsScreen />;
+  }
+
+  return <DashboardScreen />;
+};
+
+export default App;
