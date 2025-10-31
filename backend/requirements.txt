@@ -1,0 +1,52 @@
+# FastAPI и сервер
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+websockets==12.0
+
+# CCXT для работы с биржами
+ccxt==4.1.60
+
+# Аутентификация и безопасность
+pyjwt==2.8.0
+bcrypt==4.1.1
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# База данных (опционально)
+sqlalchemy==2.0.23
+pymysql==1.1.0
+databases==0.8.0
+
+# Redis для кеширования (опционально)
+redis==5.0.1
+aioredis==2.0.1
+
+# Утилиты
+python-dotenv==1.0.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# HTTP клиент
+httpx==0.25.2
+aiohttp==3.9.1
+
+# Логирование
+python-json-logger==2.0.7
+
+# Работа с датами
+python-dateutil==2.8.2
+
+# Hummingbot (опционально, если решите использовать)
+# hummingbot==1.20.0
+
+# Уведомления Telegram
+python-telegram-bot==20.7
+
+# Тестирование
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+
+# Мониторинг и метрики (опционально)
+prometheus-client==0.19.0
