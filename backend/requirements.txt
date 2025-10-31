@@ -14,7 +14,7 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 
 # База данных (опционально)
-sqlalchemy==2.0.23
+sqlalchemy==1.4.49
 pymysql==1.1.0
 databases==0.8.0
 
