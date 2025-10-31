@@ -570,14 +570,23 @@ const App = () => {
                 </ResponsiveContainer>
               </div>
 
-              {/* Active Trades */}
-              <div className="bg-gray-800/50 backdrop-blur-xl p-6 rounded-xl border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Активные сделки</h3>
-                <div className="space-y-3">
-                  {activeTrades.length > 0 ? activeTrades.map(trade => (
-                    <div key={trade.id} className="bg-gray-700/30 p-4 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <BarChart3 className="w-4 h-4 text-blue-400" />
-                          <span className="text-white font-semibold">{trade.coin}/USDT</span>
-                          <span className="text-xs text-gray-400">{trade.type}</span>
+{/* Active Trades */}
+<div className="bg-gray-800/50 backdrop-blur-xl p-6 rounded-xl border border-gray-700">
+  <h3 className="text-lg font-semibold text-white mb-4">Активные сделки</h3>
+  <div className="space-y-3">
+    {activeTrades.length > 0 ? activeTrades.map(trade => (
+      <div key={trade.id} className="bg-gray-700/30 p-4 rounded-lg">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-2">
+            <BarChart3 className="w-4 h-4 text-blue-400" />
+            <span className="text-white font-semibold">{trade.coin}/USDT</span>
+            <span className="text-xs text-gray-400">{trade.type}</span>
+          </div> {/* закрываем flex items-center space-x-2 */}
+        </div>   {/* закрываем flex items-center justify-between mb-2 */}
+      </div>     {/* закрываем bg-gray-700/... */}
+    )) : (
+      <p className="text-gray-400">Нет активных сделок</p>
+    )}
+  </div>       {/* закрываем space-y-3 */}
+</div>         {/* закрываем bg-gray-800/... */}
+
