@@ -591,3 +591,7 @@ const App = () => {
     )}
   </div>
 </div>
+
+            </div> {/* закрываем Main Content Grid (grid-cols-1 lg:grid-cols-3) */}
+        </div>   {/* закрываем max-w-7xl mx-auto px-4 py-6 */}
+      </div>     {/* закрываем min-h-screen bg-gradient-to-br ... */}
