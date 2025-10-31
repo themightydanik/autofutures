@@ -23,27 +23,31 @@ services:
     networks:
       - autofutures-network
     restart: unless-stopped
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    # Команда с --reload нужна только для dev, для продакшн можно оставить так
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    # command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload  # <-- DEV, закомментировали
 
-  # Frontend
+  # Frontend (теперь только для сборки продакшн)
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: autofutures-frontend
-    ports:
-      - "3000:3000"
+    # ports для dev сервера больше не нужны, Nginx отдаёт статические файлы
+    # ports:
+    #   - "3000:3000"  # <-- DEV, закомментировали
     environment:
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=http://backend:8000
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      # - /app/node_modules  # <-- DEV, закомментировали, для продакшн не нужно
     depends_on:
       - backend
     networks:
       - autofutures-network
     restart: unless-stopped
-    command: npm run dev -- --host 0.0.0.0
+    # DEV-команда больше не нужна
+    # command: npm run dev -- --host 0.0.0.0  # <-- DEV, закомментировали
 
   # MySQL Database
   mysql:
@@ -77,7 +81,7 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes
 
-  # phpMyAdmin (опционально, для управления БД)
+  # phpMyAdmin (опционально)
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: autofutures-phpmyadmin
@@ -94,17 +98,15 @@ services:
       - autofutures-network
     restart: unless-stopped
 
-  # Nginx (опционально, для production)
+  # Nginx (для продакшн)
   nginx:
     image: nginx:alpine
     container_name: autofutures-nginx
     ports:
-     # - "80:80"
-     # - "443:443"
-       - "8082:80"   # внешний порт хоста : внутренний порт контейнера
-       - "8443:443"  # если нужен HTTPS
+      - "8082:80"   # внешний порт хоста : внутренний порт контейнера
+      - "8443:443"  # если нужен HTTPS
     volumes:
-      - ./frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+      # ./frontend/nginx.conf:/etc/nginx/nginx.conf:ro  # <-- DEV, закомментировали, конфиг встроен в Dockerfile
       - ./frontend/ssl:/etc/nginx/ssl:ro
     depends_on:
       - backend
