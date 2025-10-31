@@ -582,16 +582,3 @@ const App = () => {
               <BarChart3 className="w-4 h-4 text-blue-400" />
               <span className="text-white font-semibold">{trade.coin}/USDT</span>
               <span className="text-xs text-gray-400">{trade.type}</span>
-            </div>
-          </div>
-        </div>
-      ))
-    ) : (
-      <p className="text-gray-400">Нет активных сделок</p>
-    )}
-  </div>
-</div>
-
-            </div> {/* закрываем Main Content Grid (grid-cols-1 lg:grid-cols-3) */}
-        </div>   {/* закрываем max-w-7xl mx-auto px-4 py-6 */}
-      </div>     {/* закрываем min-h-screen bg-gradient-to-br ... */}
