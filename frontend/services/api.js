@@ -1,6 +1,9 @@
 // frontend/src/services/api.js
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const WS_BASE_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000';
+
+// В production URL будут относительными (через nginx proxy)
+// В development можно указать полный URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const WS_BASE_URL = import.meta.env.VITE_WS_URL || (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host;
 
 class ApiService {
   constructor() {
@@ -19,13 +22,15 @@ class ApiService {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}${url}`, {
+    const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+
+    const response = await fetch(fullUrl, {
       ...options,
       headers,
     });
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({ detail: 'API Error' }));
       throw new Error(error.detail || 'API Error');
     }
 
@@ -151,7 +156,11 @@ class ApiService {
       return;
     }
 
-    this.ws = new WebSocket(`${WS_BASE_URL}/ws/${userId}`);
+    // Формируем WebSocket URL
+    const wsUrl = `${WS_BASE_URL}/ws/${userId}`;
+    console.log('Connecting to WebSocket:', wsUrl);
+
+    this.ws = new WebSocket(wsUrl);
 
     this.ws.onopen = () => {
       console.log('WebSocket connected');
