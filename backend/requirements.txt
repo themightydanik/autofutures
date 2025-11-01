@@ -12,13 +12,20 @@ pyjwt==2.8.0
 bcrypt==4.1.1
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+cryptography==41.0.7
 
-# База данных (опционально)
-sqlalchemy==1.4.49
+# Google OAuth
+google-auth==2.25.2
+google-auth-oauthlib==1.2.0
+google-auth-httplib2==0.2.0
+
+# База данных
+sqlalchemy==2.0.23
 pymysql==1.1.0
 databases==0.8.0
+alembic==1.13.0
 
-# Redis для кеширования (опционально)
+# Redis для кеширования
 redis==5.0.1
 aioredis==2.0.1
 
@@ -37,16 +44,26 @@ python-json-logger==2.0.7
 # Работа с датами
 python-dateutil==2.8.2
 
-# Hummingbot (опционально, если решите использовать)
-# hummingbot==1.20.0
-
-# Уведомления Telegram
+# Telegram уведомления
 python-telegram-bot==20.7
 
 # Тестирование
 pytest==7.4.3
 pytest-asyncio==0.21.1
-httpx==0.25.2
 
 # Мониторинг и метрики (опционально)
 prometheus-client==0.19.0
+
+# Async support
+asyncio==3.4.3
+aiofiles==23.2.1
+
+# WebSocket
+python-socketio==5.10.0
+
+# Data processing
+pandas==2.1.4
+numpy==1.26.2
+
+# Rate limiting
+slowapi==0.1.9
