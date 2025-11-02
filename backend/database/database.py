@@ -5,6 +5,8 @@ from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
 from config import settings
 import logging
+import pymysql
+pymysql.install_as_MySQLdb()
 
 logger = logging.getLogger(__name__)
 
