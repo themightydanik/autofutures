@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     LOG_FILE: str = "logs/autofutures.log"
 
-        # Admin
+    # Admin
     ADMIN_USERNAME: str = "admin"
     ADMIN_PASSWORD: str = "Admin123!Change"
     ADMIN_EMAIL: str = "admin@autofutures.com"
