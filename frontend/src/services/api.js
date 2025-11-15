@@ -1,6 +1,9 @@
-// frontend/src/services/api.js (Updated with all endpoints)
+// frontend/src/services/api.js
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
-const WS_BASE_URL = import.meta.env.VITE_WS_URL || (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host;
+const WS_BASE_URL =
+  import.meta.env.VITE_WS_URL ||
+  (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host;
 
 class ApiService {
   constructor() {
@@ -8,6 +11,7 @@ class ApiService {
     this.ws = null;
   }
 
+  // =============== Helper for authorized requests ===============
   async fetchWithAuth(url, options = {}) {
     const headers = {
       'Content-Type': 'application/json',
@@ -15,15 +19,13 @@ class ApiService {
     };
 
     if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+      // DRF TokenAuthentication format:
+      headers['Authorization'] = `Token ${this.token}`;
     }
 
     const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
 
-    const response = await fetch(fullUrl, {
-      ...options,
-      headers,
-    });
+    const response = await fetch(fullUrl, { ...options, headers });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'API Error' }));
@@ -39,6 +41,7 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ username, password, email }),
     });
+
     this.token = data.token;
     localStorage.setItem('token', data.token);
     return data;
@@ -49,6 +52,7 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     });
+
     this.token = data.token;
     localStorage.setItem('token', data.token);
     return data;
@@ -59,6 +63,7 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ token }),
     });
+
     this.token = data.token;
     localStorage.setItem('token', data.token);
     return data;
@@ -97,7 +102,7 @@ class ApiService {
         exchange_id: exchangeId,
         api_key: apiKey,
         secret_key: secretKey,
-        passphrase: passphrase,
+        passphrase,
       }),
     });
   }
@@ -123,9 +128,7 @@ class ApiService {
   }
 
   async stopTrading() {
-    return this.fetchWithAuth('/api/trade/stop', {
-      method: 'POST',
-    });
+    return this.fetchWithAuth('/api/trade/stop', { method: 'POST' });
   }
 
   async getTradeStatus() {
@@ -157,7 +160,9 @@ class ApiService {
   }
 
   async getPriceHistory(symbol, interval = '1m', limit = 100) {
-    return this.fetchWithAuth(`/api/market/price-history/${symbol}?interval=${interval}&limit=${limit}`);
+    return this.fetchWithAuth(
+      `/api/market/price-history/${symbol}?interval=${interval}&limit=${limit}`
+    );
   }
 
   async getTopCoins(limit = 10) {
@@ -230,7 +235,6 @@ class ApiService {
 
     this.ws.onclose = () => {
       console.log('WebSocket disconnected');
-      // Reconnect after 5 seconds
       setTimeout(() => {
         if (this.token) {
           this.connectWebSocket(userId, onMessage, onError);
