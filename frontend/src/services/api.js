@@ -1,17 +1,14 @@
-// frontend/src/services/api.js
-
+// frontend/src/services/api.js - ПОЛНОСТЬЮ ИСПРАВЛЕНО
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
-const WS_BASE_URL =
-  import.meta.env.VITE_WS_URL ||
-  (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host;
+const WS_BASE_URL = import.meta.env.VITE_WS_URL || (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host;
 
 class ApiService {
   constructor() {
     this.token = localStorage.getItem('token');
+    this.user_id = localStorage.getItem('user_id'); // ДОБАВЛЕНО
     this.ws = null;
   }
 
-  // =============== Helper for authorized requests ===============
   async fetchWithAuth(url, options = {}) {
     const headers = {
       'Content-Type': 'application/json',
@@ -19,13 +16,15 @@ class ApiService {
     };
 
     if (this.token) {
-      // DRF TokenAuthentication format:
-      headers['Authorization'] = `Token ${this.token}`;
+      headers['Authorization'] = `Token ${this.token}`; // Правильный формат
     }
 
     const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
 
-    const response = await fetch(fullUrl, { ...options, headers });
+    const response = await fetch(fullUrl, {
+      ...options,
+      headers,
+    });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'API Error' }));
@@ -41,9 +40,10 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ username, password, email }),
     });
-
     this.token = data.token;
+    this.user_id = data.user_id; // СОХРАНЯЕМ USER_ID
     localStorage.setItem('token', data.token);
+    localStorage.setItem('user_id', data.user_id);
     return data;
   }
 
@@ -52,26 +52,18 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     });
-
     this.token = data.token;
+    this.user_id = data.user_id; // СОХРАНЯЕМ USER_ID
     localStorage.setItem('token', data.token);
-    return data;
-  }
-
-  async googleLogin(token) {
-    const data = await this.fetchWithAuth('/api/auth/google', {
-      method: 'POST',
-      body: JSON.stringify({ token }),
-    });
-
-    this.token = data.token;
-    localStorage.setItem('token', data.token);
+    localStorage.setItem('user_id', data.user_id);
     return data;
   }
 
   logout() {
     this.token = null;
+    this.user_id = null;
     localStorage.removeItem('token');
+    localStorage.removeItem('user_id');
     if (this.ws) {
       this.ws.close();
       this.ws = null;
@@ -102,7 +94,7 @@ class ApiService {
         exchange_id: exchangeId,
         api_key: apiKey,
         secret_key: secretKey,
-        passphrase,
+        passphrase: passphrase,
       }),
     });
   }
@@ -111,71 +103,8 @@ class ApiService {
     return this.fetchWithAuth('/api/exchanges/balances');
   }
 
-  async getAvailableCoins(exchangeId) {
-    return this.fetchWithAuth(`/api/exchanges/available-coins?exchange_id=${exchangeId}`);
-  }
-
   async getSupportedExchanges() {
     return this.fetchWithAuth('/api/exchanges/supported');
-  }
-
-  // ==================== TRADING ====================
-  async startTrading(params) {
-    return this.fetchWithAuth('/api/trade/start', {
-      method: 'POST',
-      body: JSON.stringify(params),
-    });
-  }
-
-  async stopTrading() {
-    return this.fetchWithAuth('/api/trade/stop', { method: 'POST' });
-  }
-
-  async getTradeStatus() {
-    return this.fetchWithAuth('/api/trade/status');
-  }
-
-  async updateParameters(params) {
-    return this.fetchWithAuth('/api/trade/parameters', {
-      method: 'PUT',
-      body: JSON.stringify(params),
-    });
-  }
-
-  async getActiveTrades() {
-    return this.fetchWithAuth('/api/trade/active');
-  }
-
-  async getTradeHistory(limit = 100) {
-    return this.fetchWithAuth(`/api/trade/history?limit=${limit}`);
-  }
-
-  async getBotLogs(limit = 50) {
-    return this.fetchWithAuth(`/api/trade/logs?limit=${limit}`);
-  }
-
-  // ==================== MARKET DATA ====================
-  async getPrice(exchangeId, symbol) {
-    return this.fetchWithAuth(`/api/market/price/${exchangeId}/${symbol}`);
-  }
-
-  async getPriceHistory(symbol, interval = '1m', limit = 100) {
-    return this.fetchWithAuth(
-      `/api/market/price-history/${symbol}?interval=${interval}&limit=${limit}`
-    );
-  }
-
-  async getTopCoins(limit = 10) {
-    return this.fetchWithAuth(`/api/market/top-coins?limit=${limit}`);
-  }
-
-  // ==================== ANALYTICS ====================
-  async getPnLData(period = '24h') {
-    return this.fetchWithAuth(`/api/analytics/pnl?period=${period}`);
-  }
-
-  async getStatistics() {
-    return this.fetchWithAuth('/api/analytics/statistics');
   }
 
   // ==================== ARBITRAGE ====================
@@ -203,24 +132,81 @@ class ApiService {
     });
   }
 
-  async checkNetworkStatus(exchangeId, coin) {
-    return this.fetchWithAuth(`/api/exchanges/${exchangeId}/network-status/${coin}`);
+  async calculateProfit(params) {
+    return this.fetchWithAuth('/api/arbitrage/calculate-profit', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
   }
 
-  // ==================== WEBSOCKET ====================
-  connectWebSocket(userId, onMessage, onError = null) {
+  // ==================== TRADING ====================
+  async startTrading(params) {
+    return this.fetchWithAuth('/api/trading/start', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  }
+
+  async stopTrading() {
+    return this.fetchWithAuth('/api/trading/stop', {
+      method: 'POST',
+    });
+  }
+
+  async getTradeStatus() {
+    return this.fetchWithAuth('/api/trading/status');
+  }
+
+  async getActiveTrades() {
+    return this.fetchWithAuth('/api/trading/active');
+  }
+
+  async getTradeHistory(limit = 100) {
+    return this.fetchWithAuth(`/api/trading/history?limit=${limit}`);
+  }
+
+  async getBotLogs(limit = 50) {
+    return this.fetchWithAuth(`/api/trading/logs?limit=${limit}`);
+  }
+
+  // ==================== MARKET DATA ====================
+  async getTopCoins(limit = 10) {
+    return this.fetchWithAuth(`/api/market/top-coins?limit=${limit}`);
+  }
+
+  async getPriceHistory(symbol, interval = '1m', limit = 100) {
+    return this.fetchWithAuth(`/api/market/price-history/${symbol}?interval=${interval}&limit=${limit}`);
+  }
+
+  // ==================== ANALYTICS ====================
+  async getPnLData(period = '24h') {
+    return this.fetchWithAuth(`/api/analytics/pnl?period=${period}`);
+  }
+
+  async getStatistics() {
+    return this.fetchWithAuth('/api/analytics/statistics');
+  }
+
+  // ==================== WEBSOCKET - ИСПРАВЛЕНО ====================
+  connectWebSocket(onMessage, onError = null) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       return this.ws;
     }
 
-    const wsUrl = `${WS_BASE_URL}/ws/${userId}`;
+    // ИСПРАВЛЕНО: используем user_id, убираем дублирование /ws/
+    if (!this.user_id) {
+      console.error('Cannot connect WebSocket: user_id not found');
+      return null;
+    }
+
+    const wsUrl = `${WS_BASE_URL}/ws/${this.user_id}`;
     console.log('Connecting to WebSocket:', wsUrl);
 
     this.ws = new WebSocket(wsUrl);
 
     this.ws.onopen = () => {
       console.log('WebSocket connected');
-      this.ws.send(JSON.stringify({ type: 'subscribe', user_id: userId }));
+      this.ws.send(JSON.stringify({ type: 'subscribe', user_id: this.user_id }));
     };
 
     this.ws.onmessage = (event) => {
@@ -235,9 +221,10 @@ class ApiService {
 
     this.ws.onclose = () => {
       console.log('WebSocket disconnected');
+      // Reconnect after 5 seconds
       setTimeout(() => {
-        if (this.token) {
-          this.connectWebSocket(userId, onMessage, onError);
+        if (this.token && this.user_id) {
+          this.connectWebSocket(onMessage, onError);
         }
       }, 5000);
     };
@@ -254,7 +241,7 @@ class ApiService {
 
   // ==================== HEALTH ====================
   async healthCheck() {
-    return this.fetchWithAuth('/health');
+    return this.fetchWithAuth('/health/');
   }
 }
 
